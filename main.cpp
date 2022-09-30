@@ -2,6 +2,8 @@
 #include <cmath>
 #include "constants.h"
 #include "coords.h"
+#include "mandelbrot.h"
+#include <iostream>
 using namespace std;
 
 //$(CoreLibraryDependencies);%(AdditionalDependencies)
@@ -80,15 +82,18 @@ bool SaveScreenshotBMP(SDL_Window* SDLWindow, SDL_Renderer* SDLRenderer) {
 }
 
 int main(int argc, char* argv[]) {
-
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_Window* window = SDL_CreateWindow("title", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,WINDOW_W,WINDOW_H,SDL_WINDOW_SHOWN);
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 
     SDL_UpdateWindowSurface(window);
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 100);
-    SDL_RenderDrawLine(renderer, 0, 0, 500, 500);
+    //SDL_SetRenderDrawColor(renderer, 0, 0, 255, 100);
+    //SDL_RenderDrawLine(renderer, 0, 0, 500, 500);
+
+    DrawMandelbrot(renderer);
+
+
 	//SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     //DrawManyDiffEqLines(renderer);
 
