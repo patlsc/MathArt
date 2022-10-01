@@ -3,10 +3,10 @@
 const int WINDOW_H = 1000;
 const int WINDOW_W = 1500;
 //dimensions in the math world
-const double MIN_X = -2;
-const double MAX_X = 1;
-const double MIN_Y = -1;
-const double MAX_Y = 1;
+const double MIN_X = 1.2;
+const double MAX_X = 1.8;
+const double MIN_Y = -0.25;
+const double MAX_Y = 0.25;
 
 //diffeq
 //higher = better performance, more jagged but longer lines
@@ -21,3 +21,9 @@ const char OUTPUT_PATH[] = "out3.bmp";
 //mandelbrot
 const int NUM_ITERATIONS = 100;
 const double MAX_MAGNITUDE = 1000000000;
+
+
+//3d rendering
+const double THREEDCAM_X = 0;
+const double THREEDCAM_Y = 0;
+const double THREEDCAM_Z = 0;

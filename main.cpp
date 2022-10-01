@@ -3,6 +3,7 @@
 #include "constants.h"
 #include "coords.h"
 #include "mandelbrot.h"
+#include "pixels.h"
 #include <iostream>
 using namespace std;
 
@@ -81,6 +82,12 @@ bool SaveScreenshotBMP(SDL_Window* SDLWindow, SDL_Renderer* SDLRenderer) {
     return true;
 }
 
+void DebugPrintPixel(Uint32 pix) {
+    cout << "Full Value " << pix << "\n";
+    cout << "Hex Full Value " << std::hex << pix << "\n";
+    cout << "R" << ((pix & 0xff000000) >> 24) << ", G" << ((pix & 0x00ff0000) >> 16) << ", B" << ((pix & 0x0000ff00) >> 8) << ", A" << (pix & 0x000000ff) << "\n";
+}
+
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_Window* window = SDL_CreateWindow("title", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,WINDOW_W,WINDOW_H,SDL_WINDOW_SHOWN);
@@ -91,8 +98,7 @@ int main(int argc, char* argv[]) {
     //SDL_SetRenderDrawColor(renderer, 0, 0, 255, 100);
     //SDL_RenderDrawLine(renderer, 0, 0, 500, 500);
 
-    DrawMandelbrot(renderer);
-
+    //DrawMandelbrot(renderer);
 
 	//SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     //DrawManyDiffEqLines(renderer);
@@ -102,6 +108,29 @@ int main(int argc, char* argv[]) {
     /*SDL_Surface* img = SDL_GetWindowSurface(window);
     SDL_SaveBMP(img, "out2.bmp");
     SDL_UnlockSurface(img);*/
+
+    SetPixelsTest();
+    PutPixelsOnScreen(window, renderer);
+
+    cout << "first pixel in pixels array\n";
+    DebugPrintPixel(pixels[0]);
+    Uint32 testFirstPixelPointTo;
+    Uint32 *testFirstPixel = &testFirstPixelPointTo;
+    SDL_Rect firstPixelRectPointTo;
+    SDL_Rect* firstPixelRect = &firstPixelRectPointTo;
+    (* firstPixelRect).x = 0;
+    (* firstPixelRect).y = 0;
+    (* firstPixelRect).w = 1;
+    (* firstPixelRect).h = 1;
+    SDL_RenderReadPixels(renderer, firstPixelRect, 0, testFirstPixel, 4 * WINDOW_W);
+    cout << "first pixel displayed on screen\n";
+    DebugPrintPixel(*testFirstPixel);
+    //Uint32 checkpixels[WINDOW_W * WINDOW_H];
+    //SDL_RenderReadPixels(renderer, NULL, 0, checkpixels, 4 * WINDOW_W);
+    //for (int i = 0; i < 5; i++) {
+    //    cout << checkpixels[i];
+    //}
+
     SaveScreenshotBMP(window, renderer);
 
     SDL_RenderPresent(renderer);
