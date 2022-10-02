@@ -8,7 +8,7 @@ using namespace std;
 //it is parametrized by c to get f_c
 //we start with f_c(0) then f_c^2(0) etc.
 complex<double> IterationFunction(complex<double> c, complex<double> z) {
-	return z * z + c;
+	return z * sin(z) + c;
 }
 
 void DrawMandelbrotPixel(SDL_Renderer* renderer, int xPix, int yPix) {
@@ -25,10 +25,10 @@ void DrawMandelbrotPixel(SDL_Renderer* renderer, int xPix, int yPix) {
 
 	if (triesTillMax <= 10) {
 		//grows fast, not in mandelbrot
-		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	}
 	else if (triesTillMax <= 30) {
-		SDL_SetRenderDrawColor(renderer, 255, 125, 0, 255);
+		SDL_SetRenderDrawColor(renderer, 125, 125, 0, 255);
 	}
 	else if (triesTillMax <= 50) {
 		SDL_SetRenderDrawColor(renderer, 125, 255, 0, 255);

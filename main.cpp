@@ -4,6 +4,7 @@
 #include "coords.h"
 #include "mandelbrot.h"
 #include "pixels.h"
+#include "colors.h"
 #include <iostream>
 using namespace std;
 
@@ -109,8 +110,9 @@ int main(int argc, char* argv[]) {
     SDL_SaveBMP(img, "out2.bmp");
     SDL_UnlockSurface(img);*/
 
-    SetPixelsTest();
-    PutPixelsOnScreen(window, renderer);
+
+    /*cout << "this should add two pixels that are red and blue half and half";
+    DebugPrintPixel(AddColors(MakePixelFromRGB(255, 0, 0, 127), MakePixelFromRGB(0, 255, 0, 127)));
 
     cout << "first pixel in pixels array\n";
     DebugPrintPixel(pixels[0]);
@@ -124,13 +126,40 @@ int main(int argc, char* argv[]) {
     (* firstPixelRect).h = 1;
     SDL_RenderReadPixels(renderer, firstPixelRect, 0, testFirstPixel, 4 * WINDOW_W);
     cout << "first pixel displayed on screen\n";
-    DebugPrintPixel(*testFirstPixel);
+    DebugPrintPixel(*testFirstPixel);*/
+
     //Uint32 checkpixels[WINDOW_W * WINDOW_H];
     //SDL_RenderReadPixels(renderer, NULL, 0, checkpixels, 4 * WINDOW_W);
     //for (int i = 0; i < 5; i++) {
     //    cout << checkpixels[i];
     //}
 
+    /*
+    //doesnt work completely at the very end, but good enough i guess
+    double quantiles[] = {0,1,2,3,4,5,6,7,8,9};
+    float colorScheme[][3] = {
+    {1.0f,0.0f,0.0f}, //red
+    {1.0f,1.0f,0.0f}, //orange
+    {0.0f,1.0f,0.0f}, //green
+    {0.0f,1.0f,1.0f}, //turquoise
+    {0.0f,0.0f,1.0f}  //blue
+    };
+    Uint32 pix1 = AssignColorToObservation(0, quantiles, 10, colorScheme, 5);
+    cout << "pix1, should be red";
+    DebugPrintPixel(pix1);
+    Uint32 pix2 = AssignColorToObservation(1, quantiles, 10, colorScheme, 5);
+    cout << "pix2, should be in between red and purple";
+    DebugPrintPixel(pix2);
+    Uint32 pix3 = AssignColorToObservation(2, quantiles, 10, colorScheme, 5);
+    cout << "pix3, should be purple";
+    DebugPrintPixel(pix3);
+    Uint32 pix4 = AssignColorToObservation(9, quantiles, 10, colorScheme, 5);
+    cout << "pix4, should be blue";
+    DebugPrintPixel(pix4);
+    */
+
+    SetPixelsTest();
+    PutPixelsOnScreen(window, renderer);
     SaveScreenshotBMP(window, renderer);
 
     SDL_RenderPresent(renderer);

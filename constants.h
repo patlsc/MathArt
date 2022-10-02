@@ -22,6 +22,16 @@ const char OUTPUT_PATH[] = "out3.bmp";
 const int NUM_ITERATIONS = 100;
 const double MAX_MAGNITUDE = 1000000000;
 
+//coloring
+//5 colors RGB
+const int NUM_COLORS = 5;
+const float MY_COLORS[NUM_COLORS][3] = {
+	{1.0f,0.0f,0.0f}, //red
+	{1.0f,1.0f,0.0f}, //orange
+	{0.0f,1.0f,0.0f}, //green
+	{0.0f,1.0f,1.0f}, //turquoise
+	{0.0f,0.0f,1.0f}  //blue
+};
 
 //3d rendering
 const double THREEDCAM_X = 0;
