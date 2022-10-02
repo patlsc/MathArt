@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
     DebugPrintPixel(pix4);
     */
 
-    SetPixelsTest();
+    SetMandelbrotPixels();
     PutPixelsOnScreen(window, renderer);
     SaveScreenshotBMP(window, renderer);
 

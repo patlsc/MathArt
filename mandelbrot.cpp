@@ -1,5 +1,7 @@
 #include "SDL.h"
 #include "constants.h"
+#include "pixels.h"
+#include "colors.h"
 #include "coords.h"
 
 #include <complex>
@@ -11,10 +13,10 @@ complex<double> IterationFunction(complex<double> c, complex<double> z) {
 	return z * sin(z) + c;
 }
 
-void DrawMandelbrotPixel(SDL_Renderer* renderer, int xPix, int yPix) {
+double GetMandelbrotMagnitude(int xPix, int yPix) {
 	complex<double> c = complex<double>(XPixelToCord(xPix), YPixelToCord(yPix));
 	complex<double> val = 0;
-	int triesTillMax = MAX_MAGNITUDE;
+	int triesTillMax = 0;
 	for (int i = 0; i < NUM_ITERATIONS; i++) {
 		val = IterationFunction(c, val);
 		if (norm(val) >= MAX_MAGNITUDE) {
@@ -22,31 +24,16 @@ void DrawMandelbrotPixel(SDL_Renderer* renderer, int xPix, int yPix) {
 			break;
 		}
 	}
-
-	if (triesTillMax <= 10) {
-		//grows fast, not in mandelbrot
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	}
-	else if (triesTillMax <= 30) {
-		SDL_SetRenderDrawColor(renderer, 125, 125, 0, 255);
-	}
-	else if (triesTillMax <= 50) {
-		SDL_SetRenderDrawColor(renderer, 125, 255, 0, 255);
-	}
-	else if (triesTillMax <= 70) {
-		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-	}
-	else {
-		SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-	}
-	SDL_RenderDrawPoint(renderer, xPix, yPix);
+	return (double)triesTillMax;
 }
 
-void DrawMandelbrot(SDL_Renderer* renderer) {
-	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 100);
-	for (int w = 0; w < WINDOW_W; w++) {
-		for (int h = 0; h < WINDOW_H; h++) {
-			DrawMandelbrotPixel(renderer, w, h);
+void SetMandelbrotPixels() {
+	double *magnitudeArray = new double[WINDOW_W * WINDOW_H];
+	for (int xPix = 0; xPix < WINDOW_W; xPix++) {
+		for (int yPix = 0; yPix < WINDOW_H; yPix++) {
+			magnitudeArray[WINDOW_W * yPix + xPix] = GetMandelbrotMagnitude(xPix, yPix);
 		}
 	}
+	
+	SetPixelsFromMagnitudeArray(magnitudeArray);
 }

@@ -34,12 +34,38 @@ void GetRGBFromPixel(Uint32 pix, int* R, int* G, int* B) {
 	*B = (pix & B_MASK) >> 8;
 }
 
+//floats between 0 and 1
+Uint32 MakePixelFromRGBFloats(float R, float G, float B) {
+	return 255 + ((int)(B * 255) << 8) + ((int)(G * 255) << 16) + ((int)(R * 255) << 24);
+}
+
+void GetRGBFloatsFromPixel(Uint32 pix, float* R, float* G, float* B) {
+	*R = float((pix & R_MASK) >> 24) / 255.0f;
+	*G = float((pix & G_MASK) >> 16) / 255.0f;
+	*B = float((pix & B_MASK) >> 8) / 255.0f;
+}
+
+//assumes both are full transparency
+Uint32 BlendColors(float R1, float G1, float B1, float R2, float G2, float B2, float alpha) {
+	return MakePixelFromRGBFloats((1.0f - alpha) * R1 + alpha * R2, (1.0f - alpha) * G1 + alpha * G2, (1.0f - alpha) * B1 + alpha * B2);
+}
+
+//todo fix
 Uint32 AddColors(Uint32 first, Uint32 second) {
-	Uint32 a = (second & A_MASK) >> 24;
+	/*Uint32 a = (second & A_MASK) >> 24;
 	Uint32 na = 255 - a;
 	Uint32 rb = ((na * (first & RB_MASK)) + (a * (second & RB_MASK))) >> 8;
 	Uint32 ag = (na * ((first & AG_MASK) >> 8)) + (a * (ONEALPHA | ((second & G_MASK) >> 8)));
-	return ((rb & RB_MASK) | (ag & AG_MASK));
+	return ((rb & RB_MASK) | (ag & AG_MASK));*/
+	Uint32 a = (second & A_MASK);
+	Uint32 na = (first & A_MASK);
+	Uint32 rb = (na * (first & RB_MASK)) + (a * (second & RB_MASK));
+	Uint32 g = (na * (first & G_MASK)) + (a * (second & G_MASK));
+	return ((rb & RB_MASK) | (g & G_MASK)) + a+na;
+}
+
+void SetPixelColor(int xPix, int yPix, Uint32 val) {
+	pixels[yPix * WINDOW_W + xPix] = val;
 }
 
 void SetPixelColor(int xPix, int yPix, int R, int G, int B) {
@@ -71,13 +97,13 @@ void SetPixelsTest() {
 	//}
 	for (int x = 400; x < 500; x++) {
 		for (int y = 0; y < 500; y++) {
-			SetPixelColor(x, y, 255, 0, 0);
+			AddPixelColor(x, y, 255, 0, 0, 125);
 			//pixels[y*WINDOW_W+x] = 0xff0000ff;
 		}
 	}
 	for (int x = 0; x < 500; x++) {
 		for (int y = 400; y < 500; y++) {
-			SetPixelColor(x, y, 0, 255, 0);
+			AddPixelColor(x, y, 125, 255, 255, 125);
 			//pixels[y*WINDOW_W+x] = 0x00ff00ff;
 		}
 	}
