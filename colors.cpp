@@ -6,11 +6,11 @@ using namespace std;
 
 //get quantiles from a large number of values
 //modifies quantileArray
-void ObtainQuantiles(double samples[], int sample_length, double (*quantileArray)[NUM_QUANTILES], int numQuantiles) {
+void ObtainQuantiles(double samples[], int sample_length, double (*quantileArray)[NUM_QUANTILES]) {
 	sort(samples,samples+sample_length);
 
-	for (int i = 0; i < numQuantiles; i++) {
-		(*quantileArray)[i] = samples[(int)floor(sample_length * i / numQuantiles) - 1];
+	for (int i = 0; i < NUM_QUANTILES; i++) {
+		(*quantileArray)[i] = samples[(int)floor(sample_length * i / NUM_QUANTILES) - 1];
 	}
 
 	/*
@@ -25,17 +25,17 @@ void ObtainQuantiles(double samples[], int sample_length, double (*quantileArray
 
 //sets output array to RGB of resulting color
 //given an observation, the quantiles for it, and an array of colors to shift between
-Uint32 AssignColorToObservation(double observation, double quantileArray[], int numQuantiles) {
+Uint32 AssignColorToObservation(double observation, double quantileArray[]) {
 	double p = 0;
 	if (observation <= quantileArray[0]) {
 		//lower than all observed values, give it first color
 		return MakePixelFromRGBFloats(MY_COLORS[0][0], MY_COLORS[0][1], MY_COLORS[0][2]);
 	}
-	if (observation >= quantileArray[numQuantiles - 1]) {
+	if (observation >= quantileArray[NUM_QUANTILES - 1]) {
 		//bigger than all observed values
 		return MakePixelFromRGBFloats(MY_COLORS[NUM_COLORS - 1][0], MY_COLORS[NUM_COLORS - 1][1], MY_COLORS[NUM_COLORS - 1][2]);
 	}
-	for (int i = 0; i < numQuantiles-1; i++) {
+	for (int i = 0; i < NUM_QUANTILES -1; i++) {
 		double start = quantileArray[i];
 		double end = quantileArray[i + 1];
 		if (start <= observation && observation <= end) {
@@ -43,7 +43,7 @@ Uint32 AssignColorToObservation(double observation, double quantileArray[], int 
 			p = (double)i + amount_between;
 		}
 	}
-	double k = (double)numQuantiles / (double)NUM_COLORS;
+	double k = (double)NUM_QUANTILES / (double)NUM_COLORS;
 	//how far it is through the color array
 	double normalized_p = p / k;
 	//the colors its between
@@ -71,11 +71,11 @@ void SetPixelsFromMagnitudeArray(double magnitudeArray[]) {
 	}
 
 	double quantileArray[NUM_QUANTILES];
-	ObtainQuantiles(samples, NUM_SAMPLES_TAKEN, &quantileArray, NUM_QUANTILES);
+	ObtainQuantiles(samples, NUM_SAMPLES_TAKEN, &quantileArray);
 
 	for (int xPix = 0; xPix < WINDOW_W; xPix++) {
 		for (int yPix = 0; yPix < WINDOW_H; yPix++) {
-			SetPixelColor(xPix, yPix, AssignColorToObservation(magnitudeArray[yPix * WINDOW_W + xPix], quantileArray, NUM_QUANTILES));
+			SetPixelColor(xPix, yPix, AssignColorToObservation(magnitudeArray[yPix * WINDOW_W + xPix], quantileArray));
 		}
 	}
 }

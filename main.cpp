@@ -6,7 +6,9 @@
 #include "pixels.h"
 #include "colors.h"
 #include "postprocessing.h"
+#include "twodmagnitudes.h"
 #include <iostream>
+#include <chrono>
 using namespace std;
 
 //$(CoreLibraryDependencies);%(AdditionalDependencies)
@@ -159,7 +161,8 @@ int main(int argc, char* argv[]) {
     DebugPrintPixel(pix4);
     */
 
-    SetPixelColorationTest();
+    RenderMagnitudesMultithreaded(GetMandelbrotMagnitude);
+
     PutPixelsOnScreen(window, renderer);
     SaveScreenshotBMP(window, renderer);
 
