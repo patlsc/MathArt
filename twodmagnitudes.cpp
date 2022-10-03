@@ -42,25 +42,25 @@ void RenderMagnitudesMultithreaded(twoddoublemagnitude f) {
 	//this is rounded down due to integer division, last thread may have to render extra pixels
 	int xPixelsPerThread = WINDOW_W / num_threads_to_make;
 	
-	std::vector<std::thread> threads;
+	std::vector<std::thread> functionThreads;
 	
-	for (int i = 0; i < num_threads_to_make-1; i++) {
+	for (int i = 0; i < num_threads_to_make; i++) {
 		int minX = i * xPixelsPerThread;
 		int maxX = (i + 1) * xPixelsPerThread;
 		if (i > 0) {
 			minX += 1;
 		}
-		if (i == num_threads_to_make - 2) {
+		if (i == num_threads_to_make - 1) {
 			//make sure last one fills it all out
 			maxX = WINDOW_W-1;
 		}
 		int minY = 0;
 		int maxY = WINDOW_H-1;
-		threads.emplace_back(std::thread(RenderMagnitudeSquare, minX, maxX, minY, maxY, magnitudeArray, f));
-		std::cout << "\tStarting thread " << i + 1 << " on pixels [" << minX << "," << maxX << ")x[" << minY << "," << maxY << ")\n";
+		functionThreads.emplace_back(std::thread(RenderMagnitudeSquare, minX, maxX, minY, maxY, magnitudeArray, f));
+		std::cout << "\tStarting thread " << i + 1 << " on pixels [" << minX << "," << maxX << "]x[" << minY << "," << maxY << "]\n";
 	}
 
-	for (auto& t : threads) {
+	for (auto& t : functionThreads) {
 		t.join();
 	}
 	
@@ -106,7 +106,26 @@ void RenderMagnitudesMultithreaded(twoddoublemagnitude f) {
 	std::cout << "Coloring Pixels\n";
 
 	//todo make this higher performance if it becomes a problem later on
-	SetPixelColorSquare(0, WINDOW_W-1, 0, WINDOW_H-1, magnitudeArray, quantileArray);
+	std::vector<std::thread> coloringThreads;
+	for (int i = 0; i < num_threads_to_make; i++) {
+		int minX = i * xPixelsPerThread;
+		int maxX = (i + 1) * xPixelsPerThread;
+		if (i > 0) {
+			minX += 1;
+		}
+		if (i == num_threads_to_make - 1) {
+			//make sure last one fills it all out
+			maxX = WINDOW_W-1;
+		}
+		int minY = 0;
+		int maxY = WINDOW_H-1;
+		coloringThreads.emplace_back(std::thread(SetPixelColorSquare, minX, maxX, minY, maxY, magnitudeArray, quantileArray));
+		std::cout << "\tStarting thread " << i + 1 << " on pixels [" << minX << "," << maxX << "]x[" << minY << "," << maxY << "]\n";
+	}
+
+	for (auto& t : coloringThreads) {
+		t.join();
+	}
 
 	end = std::chrono::steady_clock::now();
 	s = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.0f;

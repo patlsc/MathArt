@@ -5,6 +5,17 @@
     text-align: left !important;
     display: inline !important;
 }
+body {
+    background-color: #bbbbbb;
+    margin: 0;
+}
+#main-div {
+    width: 1000px;
+    height: auto;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 16px;
+}
 </style>
 </head>
 <body>
@@ -12,20 +23,39 @@
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 
+<div id="main-div">
 <header>
-	<center><h1>MathArt</h1></center>
+<center><h1>MathArt</h1></center>
 </header>
 MathArt is a series of C++ scripts I wrote for rendering mathematical functions to create art. It is high performance and multithreaded, and supports various types of 2d as well as 3d functions and stochastic/dynamical systems. It is also designed to be easy to use, as it can automatically color in scenes to make them look interesting.
 
 <h2>Mandelbrot/Iterative Divergence</h2>
-
+<p>
 The mandelbrot set is the subset of the complex numbers given by
-
+</p>
 \[ \{ c \in \mathbb{C} : |f_c(0)|,|f_c^2(0)|,... \text{ is bounded} \}, \quad f_c(z)=z^2+c \]
 
+<p>
 In fact, you can create mandelbrot variants with other functions such as
+</p>
 
 \[ f_c(z)=z \cos(z)+c \]
 
+<p>
+Which gives the fractal below
+</p>
+<center>
+<img src="preview.jpg" width="500">
+</center>
+
+<p>
+MathArt can render this "trigonometric mandelbrot" in 1080p with double precision in about 0.29 seconds. The standard mandelbrot in 1080p takes about 14 milliseconds, although the latter could still be run much faster on a GPU and with some more numerical analysis.
+</p>
+
+<h2>Differential Equations</h2>
+
+I previously made an interactive web-based differential equation renderer <a href="https://patlsc.github.io/diffeq.html">https://patlsc.github.io/diffeq.html</a>, however its performance became stretched when doing massive (QHD, 4k, etc.) renders.
+
+</div>
 </body>
 </html>

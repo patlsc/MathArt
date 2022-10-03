@@ -1,7 +1,7 @@
 #pragma once
 //dimensions in the display
-const int WINDOW_H = 1440;
-const int WINDOW_W = 2560;
+const int WINDOW_H = 1080;
+const int WINDOW_W = 1920;
 const float ASPECT_RATIO = (float)WINDOW_W / (float)WINDOW_H;
 //dimensions in the math world
 const double MIN_X = 1.5;
@@ -20,7 +20,7 @@ const int NUM_LINES = 900;
 const char OUTPUT_PATH[] = "out3.bmp";
 
 //mandelbrot
-const int NUM_ITERATIONS = 200;
+const int NUM_ITERATIONS = 50;
 const double MAX_MAGNITUDE = 1000000000;
 
 //coloring
@@ -58,4 +58,4 @@ const float MY_COLORS[NUM_COLORS][3] = {
 */
 
 const int NUM_SAMPLES_TAKEN = 3000;
-const int NUM_QUANTILES = 40;
+const int NUM_QUANTILES = 20;
