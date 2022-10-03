@@ -1,26 +1,28 @@
-#include "SDL.h"
+#include "constants.h"
+#include "pixels.h"
 
 //antialiasing which does not involve downscaling
-void PrefilterAntiAliasing(SDL_Renderer *renderer) {
+void PixelsPrefilterAntiAliasing() {
 
 }
 
-//for antialiasing involving rendering at a high scale first
-SDL_Renderer* DownsizeRenderer(SDL_Renderer *original, int NEW_WIDTH, int NEW_HEIGHT) {
-
-}
-
-//note: this doesnt merely average the RGB values
-//
-void ToBlackAndWhiteLuma(SDL_Renderer *renderer) {
-
+//more advanced B&W algorithm based on human eye sensitivity
+void PixelsToGreyscaleLuma() {
+	for (int xPix = 0; xPix < WINDOW_W; xPix++) {
+		for (int yPix = 0; yPix < WINDOW_H; yPix++) {
+			int R, G, B;
+			GetRGBFromPixel(GetPixelColor(xPix,yPix), &R, &G, &B);
+			int gray = (int)(((float)R * 0.2126f + (float)G * 0.7152f + (float)B * 0.0722f));
+			SetPixelColor(xPix, yPix, gray, gray, gray);
+		}
+	}
 }
 
 //percent between -100 and 100
-void ChangeSaturation(SDL_Renderer *renderer, double percent) {
+void PixelsChangeSaturation(SDL_Renderer *renderer, double percent) {
 
 }
 
-void ChangeHue(SDL_Renderer* renderer, double percent) {
+void PixelsChangeHue(SDL_Renderer* renderer, double percent) {
 
 }

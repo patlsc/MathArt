@@ -6,6 +6,7 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include <vector>
 
 typedef double twoddoublemagnitude(int, int);
 
@@ -41,8 +42,8 @@ void RenderMagnitudesMultithreaded(twoddoublemagnitude f) {
 	//this is rounded down due to integer division, last thread may have to render extra pixels
 	int xPixelsPerThread = WINDOW_W / num_threads_to_make;
 	
-
-	/*
+	std::vector<std::thread> threads;
+	
 	for (int i = 0; i < num_threads_to_make-1; i++) {
 		int minX = i * xPixelsPerThread;
 		int maxX = (i + 1) * xPixelsPerThread;
@@ -51,15 +52,17 @@ void RenderMagnitudesMultithreaded(twoddoublemagnitude f) {
 		}
 		if (i == num_threads_to_make - 2) {
 			//make sure last one fills it all out
-			maxX = WINDOW_W;
+			maxX = WINDOW_W-1;
 		}
 		int minY = 0;
-		int maxY = WINDOW_H;
-		std::thread t(RenderMagnitudeSquare, minX, maxX, minY, maxY, magnitudeArray, f);
-		std::cout << "Starting thread " << i + 1 << " on pixels [" << minX << "," << maxX << ")x[" << minY << "," << maxY << ")\n";
+		int maxY = WINDOW_H-1;
+		threads.emplace_back(std::thread(RenderMagnitudeSquare, minX, maxX, minY, maxY, magnitudeArray, f));
+		std::cout << "\tStarting thread " << i + 1 << " on pixels [" << minX << "," << maxX << ")x[" << minY << "," << maxY << ")\n";
+	}
+
+	for (auto& t : threads) {
 		t.join();
 	}
-	*/
 	
 	/*
 	std::thread t1(RenderMagnitudeSquare, 0, 200, 0, WINDOW_H, magnitudeArray, f);
@@ -73,7 +76,7 @@ void RenderMagnitudesMultithreaded(twoddoublemagnitude f) {
 	std::thread t5(RenderMagnitudeSquare, 801, WINDOW_W, 0, WINDOW_H, magnitudeArray, f);
 	t5.join();
 	*/
-	RenderMagnitudeSquare(0, WINDOW_W, 0, WINDOW_H, magnitudeArray, f);
+	//RenderMagnitudeSquare(0, WINDOW_W-1, 0, WINDOW_H-1, magnitudeArray, f);
 
 	auto end = std::chrono::steady_clock::now();
 	float s = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.0f;
@@ -102,7 +105,8 @@ void RenderMagnitudesMultithreaded(twoddoublemagnitude f) {
 	start = std::chrono::steady_clock::now();
 	std::cout << "Coloring Pixels\n";
 
-	SetPixelColorSquare(0, WINDOW_W, 0, WINDOW_H, magnitudeArray, quantileArray);
+	//todo make this higher performance if it becomes a problem later on
+	SetPixelColorSquare(0, WINDOW_W-1, 0, WINDOW_H-1, magnitudeArray, quantileArray);
 
 	end = std::chrono::steady_clock::now();
 	s = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.0f;
