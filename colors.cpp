@@ -12,13 +12,29 @@ void ObtainQuantiles(double samples[], int sample_length, double (*quantileArray
 	for (int i = 0; i < numQuantiles; i++) {
 		(*quantileArray)[i] = samples[(int)floor(sample_length * i / numQuantiles) - 1];
 	}
-	(*quantileArray)[0] = 0;
+
+	/*
+	cout << "obtained quantile array \n[";
+	for (int i = 0; i < numQuantiles; i++) {
+		cout << (*quantileArray)[i] << ",";
+	}
+	cout << "max sampled value " << samples[sample_length - 1];
+	cout << "min sampled value " << samples[0];
+	*/
 }
 
 //sets output array to RGB of resulting color
 //given an observation, the quantiles for it, and an array of colors to shift between
 Uint32 AssignColorToObservation(double observation, double quantileArray[], int numQuantiles) {
 	double p = 0;
+	if (observation <= quantileArray[0]) {
+		//lower than all observed values, give it first color
+		return MakePixelFromRGBFloats(MY_COLORS[0][0], MY_COLORS[0][1], MY_COLORS[0][2]);
+	}
+	if (observation >= quantileArray[numQuantiles - 1]) {
+		//bigger than all observed values
+		return MakePixelFromRGBFloats(MY_COLORS[NUM_COLORS - 1][0], MY_COLORS[NUM_COLORS - 1][1], MY_COLORS[NUM_COLORS - 1][2]);
+	}
 	for (int i = 0; i < numQuantiles-1; i++) {
 		double start = quantileArray[i];
 		double end = quantileArray[i + 1];
@@ -28,10 +44,13 @@ Uint32 AssignColorToObservation(double observation, double quantileArray[], int 
 		}
 	}
 	double k = (double)numQuantiles / (double)NUM_COLORS;
-
-	auto c1 = MY_COLORS[(int)floor(p / k)];
-	auto c2 = MY_COLORS[(int)ceil(p / k)];
-	double a = 1 - fmod(p,k) / k;
+	//how far it is through the color array
+	double normalized_p = p / k;
+	//the colors its between
+	auto c1 = MY_COLORS[(int)floor(normalized_p)];
+	auto c2 = MY_COLORS[(int)ceil(normalized_p)];
+	//how between it is
+	double a = ceil(normalized_p) - normalized_p;
 
 	return MakePixelFromRGBFloats((float)(a * c1[0] + (1.0f - a) * c2[0]), (float)(a * c1[1] + (1.0f - a) * c2[1]), (float)(a * c1[2] + (1.0f - a) * c2[2]));
 }
@@ -59,4 +78,16 @@ void SetPixelsFromMagnitudeArray(double magnitudeArray[]) {
 			SetPixelColor(xPix, yPix, AssignColorToObservation(magnitudeArray[yPix * WINDOW_W + xPix], quantileArray, NUM_QUANTILES));
 		}
 	}
+}
+
+//this should produce an increasing gradient from the top left to the bottom right of the screen, covering the entire color array
+void SetPixelColorationTest() {
+	double* magnitudeArray = new double[WINDOW_W * WINDOW_H];
+	for (int xPix = 0; xPix < WINDOW_W; xPix++) {
+		for (int yPix = 0; yPix < WINDOW_H; yPix++) {
+			magnitudeArray[WINDOW_W * yPix + xPix] = (double)(xPix+yPix);
+		}
+	}
+
+	SetPixelsFromMagnitudeArray(magnitudeArray);
 }

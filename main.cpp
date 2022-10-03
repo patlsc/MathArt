@@ -5,6 +5,7 @@
 #include "mandelbrot.h"
 #include "pixels.h"
 #include "colors.h"
+#include "postprocessing.h"
 #include <iostream>
 using namespace std;
 
@@ -158,7 +159,7 @@ int main(int argc, char* argv[]) {
     DebugPrintPixel(pix4);
     */
 
-    SetMandelbrotPixels();
+    SetPixelColorationTest();
     PutPixelsOnScreen(window, renderer);
     SaveScreenshotBMP(window, renderer);
 
