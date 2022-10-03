@@ -63,20 +63,6 @@ void RenderMagnitudesMultithreaded(twoddoublemagnitude f) {
 	for (auto& t : functionThreads) {
 		t.join();
 	}
-	
-	/*
-	std::thread t1(RenderMagnitudeSquare, 0, 200, 0, WINDOW_H, magnitudeArray, f);
-	t1.join();
-	std::thread t2(RenderMagnitudeSquare, 201, 400, 0, WINDOW_H, magnitudeArray, f);
-	t2.join();
-	std::thread t3(RenderMagnitudeSquare, 401, 600, 0, WINDOW_H, magnitudeArray, f);
-	t3.join();
-	std::thread t4(RenderMagnitudeSquare, 601, 800, 0, WINDOW_H, magnitudeArray, f);
-	t4.join();
-	std::thread t5(RenderMagnitudeSquare, 801, WINDOW_W, 0, WINDOW_H, magnitudeArray, f);
-	t5.join();
-	*/
-	//RenderMagnitudeSquare(0, WINDOW_W-1, 0, WINDOW_H-1, magnitudeArray, f);
 
 	auto end = std::chrono::steady_clock::now();
 	float s = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.0f;
@@ -105,7 +91,6 @@ void RenderMagnitudesMultithreaded(twoddoublemagnitude f) {
 	start = std::chrono::steady_clock::now();
 	std::cout << "Coloring Pixels\n";
 
-	//todo make this higher performance if it becomes a problem later on
 	std::vector<std::thread> coloringThreads;
 	for (int i = 0; i < num_threads_to_make; i++) {
 		int minX = i * xPixelsPerThread;
