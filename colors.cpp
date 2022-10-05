@@ -2,6 +2,7 @@
 #include "pixels.h"
 #include <cmath>
 #include <algorithm>
+#include <iostream>
 using namespace std;
 
 //get quantiles from a large number of values
@@ -26,7 +27,7 @@ void ObtainQuantiles(float samples[], int sample_length, float (*quantileArray)[
 //sets output array to RGB of resulting color
 //given an observation, the quantiles for it, and an array of colors to shift between
 Uint32 AssignColorToObservation(float observation, float quantileArray[]) {
-	double p = 0;
+	float p = 0;
 	if (observation <= quantileArray[0]) {
 		//lower than all observed values, give it first color
 		return MakePixelFromRGBFloats(MY_COLORS[0][0], MY_COLORS[0][1], MY_COLORS[0][2]);
@@ -40,19 +41,27 @@ Uint32 AssignColorToObservation(float observation, float quantileArray[]) {
 		float end = quantileArray[i + 1];
 		if (start <= observation && observation <= end) {
 			float amount_between = (observation - start) / (end - start);
+			//how far it is through the quantiles
 			p = (float)i + amount_between;
 		}
 	}
-	double k = (double)NUM_QUANTILES / (double)NUM_COLORS;
+	//colors per quantile
+	float k = (float)(NUM_COLORS - 1.0f) / (float)(NUM_QUANTILES - 1.0f);
 	//how far it is through the color array
-	double normalized_p = p / k;
+	//if p = 0 then normalized_p should be 0
+	//if p = num_quantiles - 1 then normalized_p should be num_colors - 1
+	float normalized_p = p * k;
 	//the colors its between
 	auto c1 = MY_COLORS[(int)floor(normalized_p)];
-	auto c2 = MY_COLORS[(int)ceil(normalized_p)];
+	auto c2 = MY_COLORS[(int)min(ceil(normalized_p),(float)(NUM_COLORS-1))];
 	//how between it is
-	double a = ceil(normalized_p) - normalized_p;
+	float a = ceil(normalized_p) - normalized_p;
 
-	return MakePixelFromRGBFloats((float)(a * c1[0] + (1.0f - a) * c2[0]), (float)(a * c1[1] + (1.0f - a) * c2[1]), (float)(a * c1[2] + (1.0f - a) * c2[2]));
+	Uint32 c = MakePixelFromRGBFloats((a * c1[0] + (1.0f - a) * c2[0]), (a * c1[1] + (1.0f - a) * c2[1]), (a * c1[2] + (1.0f - a) * c2[2]));
+	/*cout << "p=" << p << " k=" << k << "normalized_p=" << normalized_p;
+	cout << "in AssignColorToObservation, observation " << observation << " is between quantile indices " << (int)floor(normalized_p) << " and " << (int)ceil(normalized_p) << " with alpha=" << a;
+	cout << "return should have blue=" << (float)(a * c1[2] + (1.0f - a) * c2[2]) << "actual return value is " << std::hex << c;*/
+	return c;
 }
 
 //inclusive of bounds

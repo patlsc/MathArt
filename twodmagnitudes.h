@@ -1,4 +1,4 @@
 #pragma once
-typedef double twoddoublemagnitude(int, int);
-void RenderMagnitudeSquare(int minX, int maxX, int minY, int maxY, double(*magnitudeArray), twoddoublemagnitude f);
-void RenderMagnitudesMultithreaded(twoddoublemagnitude f);
+typedef float twodfloatmagnitude(int, int);
+void RenderMagnitudeSquare(int minX, int maxX, int minY, int maxY, float(*magnitudeArray), twodfloatmagnitude f);
+void RenderMagnitudesMultithreaded(twodfloatmagnitude f);

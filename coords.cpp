@@ -27,12 +27,12 @@ float YCordToPixelFloat(float yPos) {
     return ((yPos - MIN_Y) * WINDOW_H / (MAX_Y - MIN_Y));
 }
 
-double XPixelToCord(int32_t xPixel) {
-    return MIN_X + ((double)xPixel) * (MAX_X - MIN_X) / WINDOW_W;
+float XPixelToCord(int32_t xPixel) {
+    return MIN_X + ((float)xPixel) * (MAX_X - MIN_X) / WINDOW_W;
 }
 
-double YPixelToCord(int32_t yPixel) {
-    return MIN_Y + ((double)yPixel) * (MAX_Y - MIN_Y) / WINDOW_H;
+float YPixelToCord(int32_t yPixel) {
+    return MIN_Y + ((float)yPixel) * (MAX_Y - MIN_Y) / WINDOW_H;
 }
 
 //coordinate->pixel functions clamped to be between 0 and WINDOW_W-1 and 0 and WINDOW_H-1

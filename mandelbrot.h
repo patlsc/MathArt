@@ -4,5 +4,5 @@
 using namespace std;
 
 complex<double> IterationFunction(complex<double> c, complex<double> z);
-double GetMandelbrotMagnitude(int xPix, int yPix);
+float GetMandelbrotMagnitude(int xPix, int yPix);
 void SetMandelbrotPixels();

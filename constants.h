@@ -10,21 +10,21 @@ const double MAX_X = 3;
 const double MIN_Y = 0;
 const double MAX_Y = 0.75;
 */
-const double MIN_X = -5;
-const double MAX_X = 5;
-const double MIN_Y = -5;
-const double MAX_Y = 5;
+const float MIN_X = -5;
+const float MAX_X = 5;
+const float MIN_Y = -5;
+const float MAX_Y = 5;
 
 const float BACKGROUND[3] = {0.0f, 0.0f, 0.0f};
 //diffeq
 //higher = better performance, more jagged but longer lines
-const double DELTA = 0.005;
+const float DELTA = 0.01f;
 //if diffeq line is moving slower than this, stop rendering it
-const double MINIMUM_SPEED = 0.0001;
+const float MINIMUM_SPEED = 0.0001f;
 //higher = worse performance, longer lines
-const int NUM_STEPS = 500;
+const int NUM_STEPS = 300;
 
-const int NUM_LINES = 400;
+const int NUM_LINES = 600;
 
 const char OUTPUT_PATH[] = "out3.bmp";
 

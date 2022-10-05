@@ -67,8 +67,8 @@ Uint32 ChangeBrightness(Uint32 val, float brightness) {
 	int R, G, B;
 	GetRGBFromPixel(val, &R, &G, &B);
 	R = (int)(R * brightness);
-	G *= (int)(G * brightness);
-	B *= (int)(B * brightness);
+	G = (int)(G * brightness);
+	B = (int)(B * brightness);
 	return MakePixelFromRGB(R, G, B);
 }
 
@@ -150,16 +150,16 @@ void PixelsAddUnaliasedLine(int x0, int y0, int x1, int y1, Uint32 val) {
 
 //xiaolin wu's line algorithm
 //takes floating pixels which can be obtained with XCordToFloatingPixel
-int IPart(float val) {
+int ipart(float val) {
 	return (int)floor(val);
 }
 
-float FPart(float val) {
+float fpart(float val) {
 	return val - floor(val);
 }
 
-float RFPart(float val) {
-	return 1 - FPart(val);
+float rfpart(float val) {
+	return 1 - fpart(val);
 }
 
 //brightness is in [0,1]
@@ -169,82 +169,80 @@ void SetPixelColorWithAlpha(int xPix, int yPix, float R, float G, float B, float
 
 //equivalent to setpixelcolorwithalpha if the background is black, faster
 void SetPixelColorWithBrightness(int xPix, int yPix, Uint32 val, float alpha) {
-	SetPixelColor(xPix, yPix, ChangeBrightness(val, alpha));
+	if (xPix < WINDOW_W && xPix > 0 && yPix < WINDOW_H && yPix > 0) {
+		SetPixelColor(xPix, yPix, ChangeBrightness(val, alpha));
+	}
 }
 
 void SetPixelColorWithBrightness(float xPix, float yPix, Uint32 val, float alpha) {
-	SetPixelColor((int)xPix, (int)yPix, ChangeBrightness(val, alpha));
+	if (xPix < WINDOW_W && xPix > 0 && yPix < WINDOW_H && yPix > 0) {
+		SetPixelColor((int)xPix, (int)yPix, ChangeBrightness(val, alpha));
+	}
 }
 
 void PixelsAddAliasedLine(float x0, float y0, float x1, float y1, Uint32 val) {
-	bool steep = abs(y1 - y0) > abs(x1 - x0);
+	const bool steep = abs(y1 - y0) > abs(x1 - x0);
 	if (steep) {
-		swap(x0, y0);
-		swap(x1, y1);
+		std::swap(x0, y0);
+		std::swap(x1, y1);
 	}
 	if (x0 > x1) {
-		swap(x0, x1);
-		swap(y0, y1);
+		std::swap(x0, x1);
+		std::swap(y0, y1);
 	}
 
-	float dx = x1 - x0;
-	float dy = y1 - y0;
-	cout << "dx " << dx;
-	cout << "dy " << dy;
-	if (dx == dy) {
-		//straight line
-		
+	const float dx = x1 - x0;
+	const float dy = y1 - y0;
+	const float gradient = (dx == 0) ? 1 : dy / dx;
+
+	int xpx11;
+	float intery;
+	{
+		const float xend = round(x0);
+		const float yend = y0 + gradient * (xend - x0);
+		const float xgap = rfpart(x0 + 0.5);
+		xpx11 = int(xend);
+		const int ypx11 = ipart(yend);
+		if (steep) {
+			SetPixelColorWithBrightness(ypx11, xpx11, val, rfpart(yend) * xgap);
+			SetPixelColorWithBrightness(ypx11 + 1, xpx11, val, fpart(yend) * xgap);
+		}
+		else {
+			SetPixelColorWithBrightness(xpx11, ypx11, val, rfpart(yend) * xgap);
+			SetPixelColorWithBrightness(xpx11, ypx11 + 1, val, fpart(yend) * xgap);
+		}
+		intery = yend + gradient;
 	}
 
-	float gradient;
-	if (dx == 0) {
-		gradient = 1.0f;
-	}
-	else {
-		gradient = dy / dx;
-	}
-	
-	float xend = round(x0);
-	float yend = y0 + gradient * (xend - x0);
-	float xgap = RFPart(x0 + 0.5f);
-	float xpx11 = xend;
-	float ypx11 = IPart(yend);
-	if (steep) {
-		SetPixelColorWithBrightness(ypx11, xpx11, val, RFPart(yend) * xgap);
-		SetPixelColorWithBrightness(ypx11+1,xpx11,val, FPart(yend)*xgap);
-	}
-	else {
-		SetPixelColorWithBrightness(xpx11,ypx11, val, RFPart(yend)*xgap);
-		SetPixelColorWithBrightness(xpx11,ypx11+1, val, FPart(yend)*xgap);
-	}
-	float intery = yend + gradient;
-	
-	xend = round(x1);
-	yend = y1 + gradient * (xend - x1);
-	xgap = FPart(x1 + 0.5f);
-	float xpx12 = xend;
-	float ypx12 = IPart(yend);
-	if (steep) {
-		SetPixelColorWithBrightness(ypx12,xpx12, val, RFPart(yend)*xgap);
-		SetPixelColorWithBrightness(ypx12+1,xpx12, val, FPart(yend)*xgap);
-	}
-	else {
-		SetPixelColorWithBrightness(xpx12,ypx12, val, RFPart(yend)*xgap);
-		SetPixelColorWithBrightness(xpx12,ypx12+1, val, FPart(yend)*xgap);
+	int xpx12;
+	{
+		const float xend = round(x1);
+		const float yend = y1 + gradient * (xend - x1);
+		const float xgap = rfpart(x1 + 0.5);
+		xpx12 = int(xend);
+		const int ypx12 = ipart(yend);
+		if (steep) {
+			SetPixelColorWithBrightness(ypx12, xpx12, val, rfpart(yend) * xgap);
+			SetPixelColorWithBrightness(ypx12 + 1, xpx12, val, fpart(yend) * xgap);
+		}
+		else {
+			SetPixelColorWithBrightness(xpx12, ypx12, val, rfpart(yend) * xgap);
+			SetPixelColorWithBrightness(xpx12, ypx12 + 1, val, fpart(yend) * xgap);
+		}
 	}
 
 	if (steep) {
 		for (int x = xpx11 + 1; x < xpx12; x++) {
-			SetPixelColorWithBrightness(IPart(intery), x, val, RFPart(intery));
-			SetPixelColorWithBrightness(IPart(intery) + 1, x, val, FPart(intery));
-			intery = intery + gradient;
+			SetPixelColorWithBrightness(ipart(intery), x, val, rfpart(intery));
+			SetPixelColorWithBrightness(ipart(intery) + 1, x, val, fpart(intery));
+			intery += gradient;
 		}
 	}
 	else {
 		for (int x = xpx11 + 1; x < xpx12; x++) {
-			SetPixelColorWithBrightness(x, IPart(intery), val, RFPart(intery));
-			SetPixelColorWithBrightness(x, IPart(intery) + 1, val, FPart(intery));
-			intery = intery + gradient;
+			SetPixelColorWithBrightness(x, ipart(intery), val, rfpart(intery));
+			SetPixelColorWithBrightness(x, ipart(intery) + 1, val, fpart(intery));
+			intery += gradient;
 		}
 	}
 }

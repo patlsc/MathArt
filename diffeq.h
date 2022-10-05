@@ -1,8 +1,9 @@
 #pragma once
 #include "SDL.h"
 
-double RandRange(double fMin, double fMax);
-double XDerivative(double xPos, double yPos);
-double YDerivative(double xPos, double yPos);
-void DrawDiffEqLine(SDL_Renderer* renderer, double startXPos, double startYPos);
-void DrawManyDiffEqLines(SDL_Renderer* renderer);
+float RandRange(float fMin, float fMax);
+float XDerivative(float xPos, float yPos);
+float YDerivative(float xPos, float yPos);
+float GetGradientNorm(float xPos, float yPos);
+void PixelsAddDiffEqLine(float startXPos, float startYPos, float(*quantileArray)[NUM_QUANTILES]);
+void PixelsAddManyDiffEqLines();

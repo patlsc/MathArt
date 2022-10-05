@@ -95,6 +95,13 @@ void DebugPrintPixel(Uint32 pix) {
     cout << "R" << ((pix & 0xff000000) >> 24) << ", G" << ((pix & 0x00ff0000) >> 16) << ", B" << ((pix & 0x0000ff00) >> 8) << ", A" << (pix & 0x000000ff) << "\n";
 }
 
+void DebugPrintArray(float ar[], int LEN) {
+    for (int i = 0; i < LEN; i++) {
+        cout << ar[i] << ",";
+    }
+    cout << "\n";
+}
+
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_Window* window = SDL_CreateWindow("title", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,WINDOW_W,WINDOW_H,SDL_WINDOW_SHOWN);
@@ -197,11 +204,11 @@ int main(int argc, char* argv[]) {
     //todo
     PixelsAddDiffEqLine(xPos, yPos);*/
 
-    PixelsAddUnaliasedLine(300, 300, 1000, WINDOW_H-1, 0xff0000ff);
+    //PixelsAddUnaliasedLine(300, 300, 1000, WINDOW_H-1, 0xff0000ff);
     //at exactly 1279 but no less it starts crashing
-    PixelsAddAliasedLine(500.0f, 300.0f, 1279.0f, WINDOW_H-1, 0xff0000ff);
+    //PixelsAddAliasedLine(500.0f, 300.0f, 1279.0f, WINDOW_H-1, 0xff0000ff);
 
-    //PixelsAddManyDiffEqLines();
+    PixelsAddManyDiffEqLines();
 
     PutPixelsOnScreen(window, renderer);
     SaveScreenshotBMP(window, renderer);
