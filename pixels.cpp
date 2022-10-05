@@ -39,10 +39,21 @@ Uint32 MakePixelFromRGBFloats(float R, float G, float B) {
 	return 255 + ((int)(B * 255) << 8) + ((int)(G * 255) << 16) + ((int)(R * 255) << 24);
 }
 
+Uint32 MakePixelFromRGBAFloats(float R, float G, float B, float A) {
+	return (int)(A*255) + ((int)(B * 255) << 8) + ((int)(G * 255) << 16) + ((int)(R * 255) << 24);
+}
+
 void GetRGBFloatsFromPixel(Uint32 pix, float* R, float* G, float* B) {
 	*R = float((pix & R_MASK) >> 24) / 255.0f;
 	*G = float((pix & G_MASK) >> 16) / 255.0f;
 	*B = float((pix & B_MASK) >> 8) / 255.0f;
+}
+
+void GetRGBAFloatsFromPixel(Uint32 pix, float* R, float* G, float* B, float* A) {
+	*R = float((pix & R_MASK) >> 24) / 255.0f;
+	*G = float((pix & G_MASK) >> 16) / 255.0f;
+	*B = float((pix & B_MASK) >> 8) / 255.0f;
+	*A = float((pix & A_MASK)) / 255.0f;
 }
 
 //assumes both are full transparency
@@ -50,18 +61,18 @@ Uint32 BlendColors(float R1, float G1, float B1, float R2, float G2, float B2, f
 	return MakePixelFromRGBFloats((1.0f - alpha) * R1 + alpha * R2, (1.0f - alpha) * G1 + alpha * G2, (1.0f - alpha) * B1 + alpha * B2);
 }
 
-//todo fix
-Uint32 AddColors(Uint32 first, Uint32 second) {
-	/*Uint32 a = (second & A_MASK) >> 24;
-	Uint32 na = 255 - a;
-	Uint32 rb = ((na * (first & RB_MASK)) + (a * (second & RB_MASK))) >> 8;
-	Uint32 ag = (na * ((first & AG_MASK) >> 8)) + (a * (ONEALPHA | ((second & G_MASK) >> 8)));
-	return ((rb & RB_MASK) | (ag & AG_MASK));*/
-	Uint32 a = (second & A_MASK);
-	Uint32 na = (first & A_MASK);
-	Uint32 rb = (na * (first & RB_MASK)) + (a * (second & RB_MASK));
-	Uint32 g = (na * (first & G_MASK)) + (a * (second & G_MASK));
-	return ((rb & RB_MASK) | (g & G_MASK)) + a+na;
+//if brightness is 1, gives original color
+Uint32 ChangeBrightness(Uint32 val, float brightness) {
+	int R, G, B;
+	GetRGBFromPixel(val, &R, &G, &B);
+	R = (int)(R * brightness);
+	G *= (int)(G * brightness);
+	B *= (int)(B * brightness);
+	return MakePixelFromRGB(R, G, B);
+}
+
+Uint32 GetPixelColor(int xPix, int yPix) {
+	return pixels[yPix * WINDOW_W + xPix];
 }
 
 void SetPixelColor(int xPix, int yPix, Uint32 val) {
@@ -72,9 +83,163 @@ void SetPixelColor(int xPix, int yPix, int R, int G, int B) {
 	pixels[yPix * WINDOW_W + xPix] = MakePixelFromRGB(R, G, B);
 }
 
+//we assume that first color has full opacity
+//so if we are adding color for the first time,
+//we set it to AddColorOntoFlat(BACKGROUND_INT, second);
+//then from there on out we do AddColorOntoFlat(existing_pixel,new);
+Uint32 BACKGROUND_INT = 0x00000000;
+Uint32 AddColorOnTop(Uint32 first, Uint32 second) {
+	/*Uint32 a = (float)(second && A_MASK) / 255.0f;
+	Uint32 na = 1.0f-a;
+	Uint32 total_A = (first && A_MASK)+a<255? (first&&A_MASK)+a:255;
+	Uint32 RB = na * (first & RB_MASK) + a * (second & RB_MASK);
+	Uint32 G = na * (first & G_MASK) + a * (second & G_MASK);
+	return RB + G + total_A;*/
+	float R0, G0, B0, A0;
+	float R1, G1, B1, A1;
+	GetRGBAFloatsFromPixel(first, &R0, &G0, &B0, &A0);
+	GetRGBAFloatsFromPixel(second, &R1, &G1, &B1, &A1);
+	return MakePixelFromRGBAFloats(R0 * A0 + R1 * A1, G0 * A0 + G1 * A1, B0 * A0 + B1 * A1, A0 + A1);
+}
+
+//note: in general faster to calculate color first
+//if it wont change
 void AddPixelColor(int xPix, int yPix, int R, int G, int B, int A) {
 	Uint32 first = pixels[yPix * WINDOW_W + xPix];
-	pixels[yPix * WINDOW_W + xPix] = AddColors(first, MakePixelFromRGB(R, G, B, A));
+	pixels[yPix * WINDOW_W + xPix] = AddColorOnTop(first, MakePixelFromRGB(R, G, B, A));
+}
+
+void AddPixelRectangle(int x0, int y0, int x1, int y1, int R, int G, int B, int A) {
+	for (int i = x0; i <= x1; i++) {
+		for (int j = y0; j <= y1; j++) {
+			AddPixelColor(i, j, R, G, B, A);
+		}
+	}
+}
+
+//bresenham's unaliased line algorithm
+void PixelsAddUnaliasedLine(int x0, int y0, int x1, int y1, Uint32 val) {
+	int dx = abs(x1 - x0);
+	int sx = x0 < x1 ? 1 : -1;
+	int dy = -abs(y1 - y0);
+	int sy = y0 < y1 ? 1 : -1;
+	int error = dx + dy;
+	while (true) {
+		SetPixelColor(x0, y0, val);
+		if (x0 == x1 && y0 == y1) {
+			break;
+		}
+		int e2 = 2 * error;
+		if (e2 >= dy) {
+			if (x0 == x1) {
+				break;
+			}
+			error += dy;
+			x0 = x0 + sx;
+		}
+		if (e2 <= dx) {
+			if (y0 == y1) {
+				break;
+			}
+			error += dx;
+			y0 = y0 + sy;
+		}
+	}
+}
+
+//xiaolin wu's line algorithm
+//takes floating pixels which can be obtained with XCordToFloatingPixel
+int IPart(float val) {
+	return (int)floor(val);
+}
+
+float FPart(float val) {
+	return val - floor(val);
+}
+
+float RFPart(float val) {
+	return 1 - FPart(val);
+}
+
+//brightness is in [0,1]
+void SetPixelColorWithAlpha(int xPix, int yPix, float R, float G, float B, float alpha) {
+	SetPixelColor(xPix, yPix, BlendColors(BACKGROUND[0], BACKGROUND[1], BACKGROUND[2], R, G, B, alpha));
+}
+
+//equivalent to setpixelcolorwithalpha if the background is black, faster
+void SetPixelColorWithBrightness(int xPix, int yPix, Uint32 val, float alpha) {
+	SetPixelColor(xPix, yPix, ChangeBrightness(val, alpha));
+}
+
+void SetPixelColorWithBrightness(float xPix, float yPix, Uint32 val, float alpha) {
+	SetPixelColor((int)xPix, (int)yPix, ChangeBrightness(val, alpha));
+}
+
+void PixelsAddAliasedLine(float x0, float y0, float x1, float y1, Uint32 val) {
+	bool steep = abs(y1 - y0) > abs(x1 - x0);
+	if (steep) {
+		swap(x0, y0);
+		swap(x1, y1);
+	}
+	if (x0 > x1) {
+		swap(x0, x1);
+		swap(y0, y1);
+	}
+
+	float dx = x1 - x0;
+	float dy = y1 - y0;
+
+	float gradient;
+	if (dx == 0) {
+		gradient = 1.0f;
+	}
+	else {
+		gradient = dy / dx;
+	}
+	
+	float xend = round(x0);
+	float yend = y0 + gradient * (xend - x0);
+	float xgap = RFPart(x0 + 0.5f);
+	float xpx11 = xend;
+	float ypx11 = IPart(yend);
+	if (steep) {
+		SetPixelColorWithBrightness(ypx11, xpx11, val, RFPart(yend) * xgap);
+		SetPixelColorWithBrightness(ypx11+1,xpx11,val, FPart(yend)*xgap);
+	}
+	else {
+		SetPixelColorWithBrightness(xpx11,ypx11, val, RFPart(yend)*xgap);
+		SetPixelColorWithBrightness(xpx11,ypx11+1, val, FPart(yend)*xgap);
+	}
+	float intery = yend + gradient;
+	
+	xend = round(x1);
+	yend = y1 + gradient * (xend - x1);
+	xgap = FPart(x1 + 0.5f);
+	float xpx12 = xend;
+	float ypx12 = IPart(yend);
+	if (steep) {
+		SetPixelColorWithBrightness(ypx12,xpx12, val, RFPart(yend)*xgap);
+		SetPixelColorWithBrightness(ypx12+1,xpx12, val, FPart(yend)*xgap);
+	}
+	else {
+		SetPixelColorWithBrightness(xpx12,ypx12, val, RFPart(yend)*xgap);
+		SetPixelColorWithBrightness(xpx12,ypx12+1, val, FPart(yend)*xgap);
+	}
+
+	if (steep) {
+		for (int x = xpx11 + 1; x < xpx12; x++) {
+			SetPixelColorWithBrightness(IPart(intery), x, val, RFPart(intery));
+			SetPixelColorWithBrightness(IPart(intery) + 1, x, val, FPart(intery));
+			intery = intery + gradient;
+		}
+	}
+	else {
+		for (int x = xpx11 + 1; x < xpx12; x++) {
+			SetPixelColorWithBrightness(x, IPart(intery), val, RFPart(intery));
+			SetPixelColorWithBrightness(x, IPart(intery) + 1, val, FPart(intery));
+			intery = intery + gradient;
+		}
+	}
 }
 
 //sets all pixels one color

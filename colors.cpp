@@ -6,7 +6,7 @@ using namespace std;
 
 //get quantiles from a large number of values
 //modifies quantileArray
-void ObtainQuantiles(double samples[], int sample_length, double (*quantileArray)[NUM_QUANTILES]) {
+void ObtainQuantiles(float samples[], int sample_length, float (*quantileArray)[NUM_QUANTILES]) {
 	sort(samples,samples+sample_length);
 
 	for (int i = 0; i < NUM_QUANTILES; i++) {
@@ -25,7 +25,7 @@ void ObtainQuantiles(double samples[], int sample_length, double (*quantileArray
 
 //sets output array to RGB of resulting color
 //given an observation, the quantiles for it, and an array of colors to shift between
-Uint32 AssignColorToObservation(double observation, double quantileArray[]) {
+Uint32 AssignColorToObservation(float observation, float quantileArray[]) {
 	double p = 0;
 	if (observation <= quantileArray[0]) {
 		//lower than all observed values, give it first color
@@ -36,11 +36,11 @@ Uint32 AssignColorToObservation(double observation, double quantileArray[]) {
 		return MakePixelFromRGBFloats(MY_COLORS[NUM_COLORS - 1][0], MY_COLORS[NUM_COLORS - 1][1], MY_COLORS[NUM_COLORS - 1][2]);
 	}
 	for (int i = 0; i < NUM_QUANTILES -1; i++) {
-		double start = quantileArray[i];
-		double end = quantileArray[i + 1];
+		float start = quantileArray[i];
+		float end = quantileArray[i + 1];
 		if (start <= observation && observation <= end) {
-			double amount_between = (observation - start) / (end - start);
-			p = (double)i + amount_between;
+			float amount_between = (observation - start) / (end - start);
+			p = (float)i + amount_between;
 		}
 	}
 	double k = (double)NUM_QUANTILES / (double)NUM_COLORS;
@@ -62,15 +62,16 @@ int GenerateRandomInt(int min, int max) {
 }
 
 //given an array of magnitudes with same width and height as pixels, assign the pixels colors based on their magnitude and the color scheme
-void SetPixelsFromMagnitudeArray(double magnitudeArray[]) {
-	double samples[NUM_SAMPLES_TAKEN];
+//not multithreaded
+void SetPixelsFromMagnitudeArray(float (*magnitudeArray)) {
+	float samples[NUM_SAMPLES_TAKEN];
 	for (int i = 0; i < NUM_SAMPLES_TAKEN; i++) {
 		int xPix = GenerateRandomInt(0, WINDOW_W);
 		int yPix = GenerateRandomInt(0, WINDOW_H);
 		samples[i] = magnitudeArray[yPix * WINDOW_W + xPix];
 	}
 
-	double quantileArray[NUM_QUANTILES];
+	float quantileArray[NUM_QUANTILES];
 	ObtainQuantiles(samples, NUM_SAMPLES_TAKEN, &quantileArray);
 
 	for (int xPix = 0; xPix < WINDOW_W; xPix++) {
@@ -82,10 +83,10 @@ void SetPixelsFromMagnitudeArray(double magnitudeArray[]) {
 
 //this should produce an increasing gradient from the top left to the bottom right of the screen, covering the entire color array
 void SetPixelColorationTest() {
-	double* magnitudeArray = new double[WINDOW_W * WINDOW_H];
+	float (*magnitudeArray) = new float[WINDOW_W * WINDOW_H];
 	for (int xPix = 0; xPix < WINDOW_W; xPix++) {
 		for (int yPix = 0; yPix < WINDOW_H; yPix++) {
-			magnitudeArray[WINDOW_W * yPix + xPix] = (double)(xPix+yPix);
+			magnitudeArray[WINDOW_W * yPix + xPix] = (float)(xPix+yPix);
 		}
 	}
 

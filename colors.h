@@ -1,7 +1,7 @@
 #pragma once
 #include "pixels.h"
-void ObtainQuantiles(double samples[], int sample_length, double(*quantileArray)[NUM_QUANTILES]);
-Uint32 AssignColorToObservation(double observation, double quantileArray[]);
+void ObtainQuantiles(float samples[], int sample_length, float(*quantileArray)[NUM_QUANTILES]);
+Uint32 AssignColorToObservation(float observation, float quantileArray[]);
 int GenerateRandomInt(int min, int max);
-void SetPixelsFromMagnitudeArray(double magnitudeArray[]);
+void SetPixelsFromMagnitudeArray(float (*magnitudeArray));
 void SetPixelColorationTest();

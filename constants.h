@@ -4,23 +4,32 @@ const int WINDOW_H = 1080;
 const int WINDOW_W = 1920;
 const float ASPECT_RATIO = (float)WINDOW_W / (float)WINDOW_H;
 //dimensions in the math world
+/*
 const double MIN_X = 1.5;
 const double MAX_X = 3;
 const double MIN_Y = 0;
 const double MAX_Y = 0.75;
+*/
+const double MIN_X = -5;
+const double MAX_X = 5;
+const double MIN_Y = -5;
+const double MAX_Y = 5;
 
+const float BACKGROUND[3] = {0.0f, 0.0f, 0.0f};
 //diffeq
 //higher = better performance, more jagged but longer lines
 const double DELTA = 0.005;
+//if diffeq line is moving slower than this, stop rendering it
+const double MINIMUM_SPEED = 0.0001;
 //higher = worse performance, longer lines
 const int NUM_STEPS = 500;
 
-const int NUM_LINES = 900;
+const int NUM_LINES = 400;
 
 const char OUTPUT_PATH[] = "out3.bmp";
 
 //mandelbrot
-const int NUM_ITERATIONS = 50;
+const int NUM_ITERATIONS = 100;
 const double MAX_MAGNITUDE = 1000000000;
 
 //coloring
@@ -57,5 +66,5 @@ const float MY_COLORS[NUM_COLORS][3] = {
 };
 */
 
-const int NUM_SAMPLES_TAKEN = 3000;
-const int NUM_QUANTILES = 20;
+const int NUM_SAMPLES_TAKEN = 5000;
+const int NUM_QUANTILES = 30;

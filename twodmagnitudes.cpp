@@ -1,4 +1,5 @@
 //for multithreaded rendering of two-dimensional functions which output magnitude
+//and have no cross-interactions (ie are completely parallel)
 //requires a function of the form:
 //double GetMagnitude(int xPix, int yPix)
 #include "constants.h"
@@ -8,11 +9,11 @@
 #include <iostream>
 #include <vector>
 
-typedef double twoddoublemagnitude(int, int);
+typedef float twodfloatmagnitude(int, int);
 
 //renders inclusive of all the bounds
 //doing the actual function calculations
-void RenderMagnitudeSquare(int minX, int maxX, int minY, int maxY, double(*magnitudeArray), twoddoublemagnitude f) {
+void RenderMagnitudeSquare(int minX, int maxX, int minY, int maxY, float(*magnitudeArray), twodfloatmagnitude f) {
 	for (int xPix = minX; xPix <= maxX; xPix++) {
 		for (int yPix = minY; yPix <= maxY; yPix++) {
 			magnitudeArray[WINDOW_W * yPix + xPix] = f(xPix, yPix);
@@ -21,7 +22,7 @@ void RenderMagnitudeSquare(int minX, int maxX, int minY, int maxY, double(*magni
 }
 
 //coloring in the pixels based on function value
-void SetPixelColorSquare(int minX, int maxX, int minY, int maxY, double(*magnitudeArray), double quantileArray[NUM_QUANTILES]) {
+void SetPixelColorSquare(int minX, int maxX, int minY, int maxY, float(*magnitudeArray), float quantileArray[NUM_QUANTILES]) {
 	for (int xPix = minX; xPix <= maxX; xPix++) {
 		for (int yPix = minY; yPix <= maxY; yPix++) {
 			SetPixelColor(xPix, yPix, AssignColorToObservation(magnitudeArray[yPix * WINDOW_W + xPix], quantileArray));
@@ -30,13 +31,13 @@ void SetPixelColorSquare(int minX, int maxX, int minY, int maxY, double(*magnitu
 }
 
 //sets all the pixels
-void RenderMagnitudesMultithreaded(twoddoublemagnitude f) {
+void RenderMagnitudesMultithreaded(twodfloatmagnitude f) {
 	//getting function values
 	auto start = std::chrono::steady_clock::now();
 	std::cout << "Rendering Function Values\n";
 
 	const auto processor_count = std::thread::hardware_concurrency();
-	double(*magnitudeArray) = new double[WINDOW_W * WINDOW_H];
+	float (*magnitudeArray) = new float[WINDOW_W * WINDOW_H];
 
 	int num_threads_to_make = processor_count;
 	//this is rounded down due to integer division, last thread may have to render extra pixels
@@ -57,7 +58,7 @@ void RenderMagnitudesMultithreaded(twoddoublemagnitude f) {
 		int minY = 0;
 		int maxY = WINDOW_H-1;
 		functionThreads.emplace_back(std::thread(RenderMagnitudeSquare, minX, maxX, minY, maxY, magnitudeArray, f));
-		std::cout << "\tStarting thread " << i + 1 << " on pixels [" << minX << "," << maxX << "]x[" << minY << "," << maxY << "]\n";
+		//std::cout << "\tStarting thread " << i + 1 << " on pixels [" << minX << "," << maxX << "]x[" << minY << "," << maxY << "]\n";
 	}
 
 	for (auto& t : functionThreads) {
@@ -73,13 +74,13 @@ void RenderMagnitudesMultithreaded(twoddoublemagnitude f) {
 	start = std::chrono::steady_clock::now();
 	std::cout << "Generating Color Distribution\n";
 	
-	double samples[NUM_SAMPLES_TAKEN];
+	float samples[NUM_SAMPLES_TAKEN];
 	for (int i = 0; i < NUM_SAMPLES_TAKEN; i++) {
 		int xPix = GenerateRandomInt(0, WINDOW_W);
 		int yPix = GenerateRandomInt(0, WINDOW_H);
 		samples[i] = magnitudeArray[yPix * WINDOW_W + xPix];
 	}
-	double quantileArray[NUM_QUANTILES];
+	float quantileArray[NUM_QUANTILES];
 	ObtainQuantiles(samples, NUM_SAMPLES_TAKEN, &quantileArray);
 
 	end = std::chrono::steady_clock::now();
@@ -105,7 +106,7 @@ void RenderMagnitudesMultithreaded(twoddoublemagnitude f) {
 		int minY = 0;
 		int maxY = WINDOW_H-1;
 		coloringThreads.emplace_back(std::thread(SetPixelColorSquare, minX, maxX, minY, maxY, magnitudeArray, quantileArray));
-		std::cout << "\tStarting thread " << i + 1 << " on pixels [" << minX << "," << maxX << "]x[" << minY << "," << maxY << "]\n";
+		//std::cout << "\tStarting thread " << i + 1 << " on pixels [" << minX << "," << maxX << "]x[" << minY << "," << maxY << "]\n";
 	}
 
 	for (auto& t : coloringThreads) {

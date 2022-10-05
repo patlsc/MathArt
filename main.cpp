@@ -5,8 +5,11 @@
 #include "mandelbrot.h"
 #include "pixels.h"
 #include "colors.h"
+#include "diffeq.h"
 #include "postprocessing.h"
 #include "twodmagnitudes.h"
+#include "twodadditiveprocess.h"
+#include "coords.h"
 #include <iostream>
 #include <chrono>
 using namespace std;
@@ -161,7 +164,44 @@ int main(int argc, char* argv[]) {
     DebugPrintPixel(pix4);
     */
 
-    RenderMagnitudesMultithreaded(GetMandelbrotMagnitude);
+    //RenderMagnitudesMultithreaded(GetMandelbrotMagnitude);
+    
+    //PixelsAddAliasedLine(0, 0, 500, 250, 0xff0000ff);
+    //PixelsAddUnaliasedLine(0, 10, 500, 260, 0xff0000ff);
+    //PixelsAddAliasedLine(0, 500, 100, 500, 0xff0000ff);
+    //PixelsAddAliasedLine(1000, 1000, 700, 500, 0xff0000ff);
+
+    //this should display a faded orange, transparent, and bright orange rectangle
+    /*AddPixelRectangle(200, 200, 400, 600, 255, 125, 0, 125);
+    AddPixelRectangle(401, 200, 600, 600, 255, 125, 0, 0);
+    AddPixelRectangle(601, 200, 800, 600, 255, 125, 0, 255);*/
+
+    /*float(*magnitudeArray) = new float[WINDOW_W * WINDOW_H];
+    float(*weightArray) = new float[WINDOW_W * WINDOW_H];
+    for (int i = 0; i < 100; i++) {
+        BrownianProcess(300, 300, (float)i, magnitudeArray, weightArray);
+    }
+    SetPixelsFromMagnitudeArray(weightArray);*/
+    
+    /*double xPos;
+    double yPos;
+    for (int i = 0; i < 6; i++) {
+        xPos = RandRange(MIN_X, MAX_X);
+        yPos = RandRange(MIN_Y, MAX_Y);
+    }
+    xPos = -0.651784;
+    yPos = 0.717887;
+    cout << "xPos " << xPos << "\n";
+    cout << "yPos " << yPos << "\n";
+    cout << "pixel coordinates " << XCordToPixelClamped(xPos) << ", " << YCordToPixelClamped(yPos);
+    //todo
+    PixelsAddDiffEqLine(xPos, yPos);*/
+
+    PixelsAddUnaliasedLine(300, 300, 1000, WINDOW_H-1, 0xff0000ff);
+    //at exactly 1279 but no less it starts crashing
+    PixelsAddAliasedLine(500.0f, 300.0f, 1279.0f, WINDOW_H-1, 0xff0000ff);
+
+    //PixelsAddManyDiffEqLines();
 
     PutPixelsOnScreen(window, renderer);
     SaveScreenshotBMP(window, renderer);
