@@ -2,6 +2,7 @@
 #include "constants.h"
 #include <cmath>
 #include <stdexcept>
+#include <iostream>
 using namespace std;
 //this is an interface for doing pixel by pixel manipulations
 Uint32 pixels[WINDOW_W * WINDOW_H];
@@ -188,6 +189,12 @@ void PixelsAddAliasedLine(float x0, float y0, float x1, float y1, Uint32 val) {
 
 	float dx = x1 - x0;
 	float dy = y1 - y0;
+	cout << "dx " << dx;
+	cout << "dy " << dy;
+	if (dx == dy) {
+		//straight line
+		
+	}
 
 	float gradient;
 	if (dx == 0) {
