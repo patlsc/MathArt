@@ -48,6 +48,14 @@ int ClampI(int a, int minimum, int maximum) {
     return (a > minimum ? (a < maximum ? a : maximum) : minimum);
 }
 
+float ClampXPosFloat(float xPos) {
+    return ClampF(xPos, 0, WINDOW_W - 1);
+}
+
+float ClampYPosFloat(float yPos) {
+    return ClampF(yPos, 0, WINDOW_H - 1);
+}
+
 int32_t XCordToPixelClamped(double xPos) {
     return ClampI(XCordToPixel(xPos),0,WINDOW_W-1);
 }
@@ -61,5 +69,5 @@ float XCordToPixelFloatClamped(float xPos) {
 }
 
 float YCordToPixelFloatClamped(float yPos) {
-    return ClampF(XCordToPixelFloat(yPos), 0, WINDOW_H - 1);
+    return ClampF(YCordToPixelFloat(yPos), 0, WINDOW_H - 1);
 }

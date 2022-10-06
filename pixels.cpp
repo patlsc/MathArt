@@ -181,6 +181,7 @@ void SetPixelColorWithBrightness(float xPix, float yPix, Uint32 val, float alpha
 }
 
 void PixelsAddAliasedLine(float x0, float y0, float x1, float y1, Uint32 val) {
+	//hack to draw end and start with full opacity
 	const bool steep = abs(y1 - y0) > abs(x1 - x0);
 	if (steep) {
 		std::swap(x0, y0);
@@ -245,6 +246,7 @@ void PixelsAddAliasedLine(float x0, float y0, float x1, float y1, Uint32 val) {
 			intery += gradient;
 		}
 	}
+
 }
 
 //sets all pixels one color

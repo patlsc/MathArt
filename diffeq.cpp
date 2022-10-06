@@ -60,8 +60,8 @@ void PixelsAddDiffEqLine(float startXPos, float startYPos, float(*quantileArray)
         //coordinates, it should reduce the length of the line so it just hits the end
         
         //PixelsAddUnaliasedLine(XCordToPixelClamped(xPos), YCordToPixelClamped(yPos), XCordToPixelClamped(nextXPos), YCordToPixelClamped(nextYPos), col);
-        //PixelsAddAliasedLine(XCordToPixelFloatClamped(xPos), YCordToPixelFloatClamped(yPos), XCordToPixelFloatClamped(nextXPos), YCordToPixelFloatClamped(nextYPos), col);
-
+        PixelsAddAliasedLine(XCordToPixelFloatClamped(xPos), YCordToPixelFloatClamped(yPos), XCordToPixelFloatClamped(nextXPos), YCordToPixelFloatClamped(nextYPos), col);
+        
         xPos = nextXPos;
         yPos = nextYPos;
     }

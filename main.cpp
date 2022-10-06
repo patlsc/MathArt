@@ -102,6 +102,11 @@ void DebugPrintArray(float ar[], int LEN) {
     cout << "\n";
 }
 
+void DebugDrawCordLine(float xPos, float yPos, float nextXPos, float nextYPos) {
+    cout << "drawing line from " << XCordToPixelFloatClamped(xPos) << "," << YCordToPixelFloatClamped(yPos) << " to " << XCordToPixelFloatClamped(nextXPos) << "," << YCordToPixelFloatClamped(nextYPos) << "\n";
+    PixelsAddAliasedLine(XCordToPixelFloatClamped(xPos), YCordToPixelFloatClamped(yPos), XCordToPixelFloatClamped(nextXPos), YCordToPixelFloatClamped(nextYPos), 0xff0000ff);
+}
+
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_Window* window = SDL_CreateWindow("title", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,WINDOW_W,WINDOW_H,SDL_WINDOW_SHOWN);
@@ -207,14 +212,13 @@ int main(int argc, char* argv[]) {
     //PixelsAddUnaliasedLine(300, 300, 1000, WINDOW_H-1, 0xff0000ff);
     //at exactly 1279 but no less it starts crashing
     //PixelsAddAliasedLine(500.0f, 300.0f, 1279.0f, WINDOW_H-1, 0xff0000ff);
-
+    
     PixelsAddManyDiffEqLines();
 
     PutPixelsOnScreen(window, renderer);
     SaveScreenshotBMP(window, renderer);
 
     SDL_RenderPresent(renderer);
-	
 
     //Main loop flag
     bool quit = false;

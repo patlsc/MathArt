@@ -11,6 +11,8 @@ float YPixelToCord(int32_t xPixel);
 double ClampD(double a, double minimum, double maximum);
 float ClampF(float a, float minimum, float maximum);
 int ClampI(int a, int minimum, int maximum);
+float ClampXPosFloat(float xPos);
+float ClampYPosFloat(float yPos);
 int32_t XCordToPixelClamped(double xPos);
 int32_t YCordToPixelClamped(double yPos);
 float XCordToPixelFloatClamped(float xPos);
